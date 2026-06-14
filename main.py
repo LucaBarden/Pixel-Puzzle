@@ -1,6 +1,7 @@
 import logging
 import os
 from fastapi import FastAPI
+from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
@@ -16,6 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger("pixel_puzzle")
 
 app = FastAPI(title="Pixel Puzzle")
+app.add_middleware(GZipMiddleware, minimum_size=512)
 
 # Resolve absolute path for robustness
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))

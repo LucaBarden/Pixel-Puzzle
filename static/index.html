@@ -60,17 +60,40 @@
                     Score: 1000
                 </div>
 
+                <div id="personal-best" class="personal-best-badge hidden">
+                    🏆 <span id="pb-value">0</span>
+                </div>
+
                 <div id="status" class="status-badge">
                     Bereit
                 </div>
             </div>
 
-            <!-- Controls -->
+            <!-- Mobile Touch Controls -->
+            <div class="touch-controls">
+                <button id="touch-pause-btn" class="touch-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                    Start / Pause
+                </button>
+                <button id="touch-next-btn" class="touch-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/>
+                    </svg>
+                    Nächstes Bild
+                </button>
+            </div>
+
+            <!-- Keyboard Controls Guide -->
             <div class="controls-guide">
                 <span class="key-badge">SPACE</span> Start / Pause
                 <span class="separator">|</span>
                 <span class="key-badge">N</span> Nächstes Bild
             </div>
+
+            <!-- New Game Button -->
+            <button id="new-game-btn" class="btn btn-back">↩ Neues Spiel</button>
 
         </div>
 

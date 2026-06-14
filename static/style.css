@@ -386,3 +386,93 @@ body {
         transform: scale(1);
     }
 }
+
+/* Canvas max-width constraint for large images */
+.canvas-wrapper {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.canvas {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Personal Best Badge */
+.personal-best-badge {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fbbf24;
+    background: rgba(251, 191, 36, 0.1);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-family: 'Space Grotesk', sans-serif;
+    letter-spacing: -0.01em;
+    box-shadow: 0 2px 8px rgba(251, 191, 36, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Touch Controls */
+.touch-controls {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 1.25rem;
+}
+
+.touch-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--badge-border);
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+    opacity: 0.85;
+}
+
+.touch-btn:hover {
+    background: rgba(99, 102, 241, 0.12);
+    border-color: rgba(99, 102, 241, 0.4);
+    color: var(--accent-color-hover);
+}
+
+.touch-btn:active {
+    transform: scale(0.97);
+    background: rgba(99, 102, 241, 0.2);
+}
+
+/* Back / New Game Button */
+.btn-back {
+    margin-top: 1rem;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    padding: 0.55rem 1.25rem;
+    width: auto;
+    align-self: center;
+}
+
+.btn-back:hover {
+    color: var(--text-primary);
+    border-color: var(--badge-border);
+    background: rgba(255, 255, 255, 0.04);
+}
