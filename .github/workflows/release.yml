@@ -44,29 +44,34 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # If pyproject.toml changed relative to the tag, commit it back.
           if git diff --quiet pyproject.toml; then
             echo "pyproject.toml already at ${{ steps.version.outputs.version }}, nothing to commit."
           else
             git add pyproject.toml
-            # [skip ci] prevents the commit from triggering this workflow again.
             git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
 
-            # Fetch all remote branches and tags so branch detection can resolve.
-            git fetch origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
-
-            BRANCH=$(git for-each-ref --contains=HEAD --format='%(refname:short)' refs/remotes/origin/ \
+            # Find the branch whose tip is the parent of this tag (i.e. where the tag was cut from).
+            # git for-each-ref on the *parent* commit (before our bump commit) is reliable
+            # because that commit IS reachable from the remote branch.
+            PARENT=$(git rev-parse HEAD~1)
+            git fetch origin '+refs/heads/*:refs/remotes/origin/*'
+            BRANCH=$(git for-each-ref --format='%(refname:short)' refs/remotes/origin/ \
               | grep -v '\->' \
-              | head -n1 \
-              | sed 's|origin/||')
+              | while read ref; do
+                  if git merge-base --is-ancestor "$PARENT" "origin/${ref#origin/}" 2>/dev/null \
+                     && git merge-base --is-ancestor "origin/${ref#origin/}" "$PARENT" 2>/dev/null; then
+                    echo "${ref#origin/}"
+                    break
+                  fi
+                done)
 
             if [[ -z "$BRANCH" ]]; then
-              echo "Could not determine a remote branch containing this checkout."
-              exit 1
+              echo "Could not determine source branch; defaulting to main."
+              BRANCH="main"
             fi
 
             echo "Pushing version bump to origin/$BRANCH"
-            git push origin "HEAD:$BRANCH"
+            git push origin "HEAD:refs/heads/$BRANCH"
           fi
 
       - name: Build distribution
