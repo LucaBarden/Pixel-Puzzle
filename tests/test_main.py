@@ -1,14 +1,10 @@
-import os
-import sys
-
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+"""Tests for the Pixel Puzzle FastAPI app."""
 
 from fastapi.testclient import TestClient
 
-import main
+from pixel_puzzle.app import app
 
-
-client = TestClient(main.app)
+client = TestClient(app)
 
 
 def test_index_returns_200():
