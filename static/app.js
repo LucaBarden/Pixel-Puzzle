@@ -15,7 +15,6 @@ const canvas           = document.getElementById("canvas");
 const scoreEl          = document.getElementById("score");
 const sessionTotalEl   = document.getElementById("session-total");
 const progressEl       = document.getElementById("progress");
-const statusEl         = document.getElementById("status");
 const pbBadge          = document.getElementById("personal-best");
 const pbValueEl        = document.getElementById("pb-value");
 const welcomeScreen    = document.getElementById("welcome-screen");
@@ -71,11 +70,7 @@ function refreshPBDisplay() {
     }
 }
 
-// ─── Status & Score ───────────────────────────────────────────────────────────
-function setStatus(text) {
-    statusEl.textContent = text;
-}
-
+// ─── Score & Display ──────────────────────────────────────────────────────────
 function updateScore(force = false) {
     if (!force && score === lastDisplayedScore) return;
     lastDisplayedScore = score;
@@ -180,7 +175,6 @@ function onImageReady() {
     lastDisplayedScore = null;
     updateScore(true);
     updateProgressDisplay();
-    setStatus("Bereit");
     refreshPBDisplay();
     hideGameError();
     setImageLoading(false);
@@ -207,7 +201,6 @@ function loadImage() {
     img.onload = onImageReady;
     img.onerror = () => {
         setImageLoading(false);
-        setStatus("Fehler beim Laden");
         showGameError("Bild konnte nicht geladen werden. Drücke N zum Überspringen.");
     };
     img.src = IMAGES[currentIndex];
@@ -244,8 +237,6 @@ function draw() {
 
     if (progress < 1) {
         animationFrame = requestAnimationFrame(draw);
-    } else {
-        setStatus("Fertig");
     }
 }
 
@@ -254,7 +245,6 @@ function startGame() {
         started = true;
         paused = false;
         startTime = Date.now();
-        setStatus("Läuft");
         setPauseIcon();
         draw();
     }
@@ -270,12 +260,10 @@ function togglePause() {
         paused = true;
         pauseTime = Date.now();
         cancelAnimationFrame(animationFrame);
-        setStatus("Pause");
         setPlayIcon();
     } else {
         paused = false;
         startTime += Date.now() - pauseTime;
-        setStatus("Läuft");
         setPauseIcon();
         draw();
     }
@@ -365,7 +353,6 @@ function resetToWelcome() {
     updateScore(true);
     updateSessionTotalDisplay();
     updateProgressDisplay();
-    setStatus("Bereit");
     hideGameError();
     hideWelcomeError();
 
