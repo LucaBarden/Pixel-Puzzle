@@ -1,6 +1,6 @@
 services:
   pixel-puzzle:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     ports:

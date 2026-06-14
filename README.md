@@ -79,28 +79,6 @@ Run the server from a working copy:
 uv run pixel-puzzle
 ```
 
-## Building & publishing
-
-Build wheel and sdist:
-
-```bash
-uv build
-```
-
-Publish to PyPI (use `--repository testpypi` first to verify):
-
-```bash
-uv publish --token "$PYPI_TOKEN"
-```
-
-After the package is on PyPI, anywhere on the planet can install it as a
-native Python tool:
-
-```bash
-uv tool install pixel-puzzle
-pixel-puzzle
-```
-
 ## Project layout
 
 ```
