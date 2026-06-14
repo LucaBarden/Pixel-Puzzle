@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pixel-puzzle"
+name = "pixel-puzzle-game"
 version = "0.3.0"
 description = "A pixel art guessing quiz game"
 readme = "README.md"
