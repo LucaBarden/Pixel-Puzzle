@@ -52,10 +52,11 @@ jobs:
             # [skip ci] prevents the commit from triggering this workflow again.
             git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
 
-            # Determine which remote branch contains this checkout so we push
-            # back correctly no matter which branch the tag lives on.
-            BRANCH=$(git branch -r --contains HEAD \
-              | grep -v HEAD \
+            # Fetch all remote branches and tags so branch detection can resolve.
+            git fetch origin '+refs/heads/*:refs/remotes/origin/*' '+refs/tags/*:refs/tags/*'
+
+            BRANCH=$(git for-each-ref --contains=HEAD --format='%(refname:short)' refs/remotes/origin/ \
+              | grep -v '\->' \
               | head -n1 \
               | sed 's|origin/||')
 
