@@ -1,23 +1,37 @@
+"""FastAPI application for the Pixel Puzzle game.
+
+Static assets (HTML, JS, CSS, fonts) are shipped inside the package and
+resolved at runtime via :mod:`importlib.resources`, so the app works both
+from a working copy and from an installed wheel.
+"""
+
+from __future__ import annotations
+
 import logging
 import os
+from importlib.resources import files
+
+from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
-from dotenv import load_dotenv
-from starlette.staticfiles import StaticFiles as StarletteStaticFiles
 from starlette.responses import Response
+from starlette.staticfiles import StaticFiles as StarletteStaticFiles
 
 load_dotenv()
 
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger("pixel_puzzle")
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-IMAGE_FOLDER = os.getenv("IMAGE_FOLDER", os.path.join(BASE_DIR, "images"))
+# Location of the bundled `static/` directory inside the installed package.
+STATIC_DIR = files("pixel_puzzle").joinpath("static")
+
+# Allow operators to point at a directory of images outside the package.
+IMAGE_FOLDER = os.getenv("IMAGE_FOLDER", os.path.join(os.getcwd(), "images"))
 
 _images_cache: list[str] | None = None
 _images_cache_mtime: float | None = None
@@ -46,12 +60,14 @@ if not os.path.exists(IMAGE_FOLDER):
     except Exception as e:
         logger.error(f"Could not create image directory {IMAGE_FOLDER}: {e}")
 
-app.mount("/static", CachedStaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+app.mount("/static", CachedStaticFiles(directory=str(STATIC_DIR)), name="static")
 
 if os.path.exists(IMAGE_FOLDER):
     app.mount("/images", StaticFiles(directory=IMAGE_FOLDER), name="images")
 else:
-    logger.warning(f"Image folder {IMAGE_FOLDER} does not exist. /images path will not be mounted properly.")
+    logger.warning(
+        f"Image folder {IMAGE_FOLDER} does not exist. /images path will not be mounted properly."
+    )
 
 
 def get_images_list() -> list[str]:
@@ -66,9 +82,11 @@ def get_images_list() -> list[str]:
         if _images_cache is not None and _images_cache_mtime == folder_mtime:
             return _images_cache
 
-        files = sorted(os.listdir(IMAGE_FOLDER))
+        files_in_dir = sorted(os.listdir(IMAGE_FOLDER))
         _images_cache = [
-            f"/images/{f}" for f in files if f.lower().endswith((".png", ".jpg", ".jpeg"))
+            f"/images/{f}"
+            for f in files_in_dir
+            if f.lower().endswith((".png", ".jpg", ".jpeg"))
         ]
         _images_cache_mtime = folder_mtime
         return _images_cache
@@ -79,21 +97,22 @@ def get_images_list() -> list[str]:
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    index_path = os.path.join(BASE_DIR, "static", "index.html")
-    if os.path.exists(index_path):
-        return FileResponse(index_path, headers={"Cache-Control": CACHE_NO_CACHE})
+    index_path = STATIC_DIR.joinpath("index.html")
+    if index_path.is_file():
+        return FileResponse(str(index_path), headers={"Cache-Control": CACHE_NO_CACHE})
     return HTMLResponse(
-        "<html><body><h1>Pixel Puzzle</h1><p>Frontend template not found.</p></body></html>",
+        "<html><body><h1>Pixel Puzzle</h1>"
+        "<p>Frontend template not found.</p></body></html>",
         status_code=404,
     )
 
 
 @app.get("/favicon.ico", include_in_schema=False)
 def favicon():
-    favicon_path = os.path.join(BASE_DIR, "static", "favicon.svg")
-    if os.path.exists(favicon_path):
+    favicon_path = STATIC_DIR.joinpath("favicon.svg")
+    if favicon_path.is_file():
         return FileResponse(
-            favicon_path,
+            str(favicon_path),
             media_type="image/svg+xml",
             headers={"Cache-Control": CACHE_IMMUTABLE},
         )
@@ -104,11 +123,3 @@ def favicon():
 def api_images():
     images = get_images_list()
     return JSONResponse(content={"images": images})
-
-
-if __name__ == "__main__":
-    import uvicorn
-    host = os.getenv("HOST", "0.0.0.0")
-    port = int(os.getenv("PORT", "8000"))
-    logger.info(f"Starting server on {host}:{port}")
-    uvicorn.run("main:app", host=host, port=port, reload=False)
