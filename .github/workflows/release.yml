@@ -6,7 +6,7 @@ on:
       - 'release/*'
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Install uv
         uses: astral-sh/setup-uv@v6
@@ -24,6 +26,7 @@ jobs:
           enable-cache: true
 
       - name: Set version from tag
+        id: version
         run: |
           TAG="${GITHUB_REF#refs/tags/}"
           # Strip and validate the 'release/' prefix (e.g. release/0.2.1 -> 0.2.1)
@@ -34,6 +37,36 @@ jobs:
           fi
           echo "Setting project version to $VERSION"
           uv version "$VERSION"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # If pyproject.toml changed relative to the tag, commit it back.
+          if git diff --quiet pyproject.toml; then
+            echo "pyproject.toml already at ${{ steps.version.outputs.version }}, nothing to commit."
+          else
+            git add pyproject.toml
+            # [skip ci] prevents the commit from triggering this workflow again.
+            git commit -m "chore: bump version to ${{ steps.version.outputs.version }} [skip ci]"
+
+            # Determine which remote branch contains this checkout so we push
+            # back correctly no matter which branch the tag lives on.
+            BRANCH=$(git branch -r --contains HEAD \
+              | grep -v HEAD \
+              | head -n1 \
+              | sed 's|origin/||')
+
+            if [[ -z "$BRANCH" ]]; then
+              echo "Could not determine a remote branch containing this checkout."
+              exit 1
+            fi
+
+            echo "Pushing version bump to origin/$BRANCH"
+            git push origin "HEAD:$BRANCH"
+          fi
 
       - name: Build distribution
         run: uv build
