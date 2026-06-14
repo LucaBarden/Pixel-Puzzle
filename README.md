@@ -62,7 +62,7 @@ Open <http://localhost:8000> and start guessing.
 Clone the repository and sync the dev environment:
 
 ```bash
-git clone https://github.com/luca/Pixel-Puzzle.git
+git clone https://github.com/LucaBarden/Pixel-Puzzle.git
 cd Pixel-Puzzle
 uv sync --extra dev
 ```

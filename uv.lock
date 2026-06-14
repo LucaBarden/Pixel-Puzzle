@@ -158,8 +158,8 @@ wheels = [
 ]
 
 [[package]]
-name = "pixel-puzzle"
-version = "0.3.0"
+name = "pixel-puzzle-game"
+version = "0.5.2"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },

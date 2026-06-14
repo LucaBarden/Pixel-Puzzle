@@ -12,7 +12,7 @@ license = { text = "MIT" }
 authors = [{ name = "Luca Barden" }]
 keywords = ["pixel-art", "game", "quiz", "fastapi"]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Framework :: FastAPI",
     "Intended Audience :: End Users/Desktop",
     "License :: OSI Approved :: MIT License",
@@ -38,8 +38,8 @@ dev = [
 pixel-puzzle = "pixel_puzzle.__main__:main"
 
 [project.urls]
-Homepage = "https://github.com/luca/Pixel-Puzzle"
-Issues = "https://github.com/luca/Pixel-Puzzle/issues"
+Homepage = "https://github.com/LucaBarden/Pixel-Puzzle"
+Issues = "https://github.com/LucaBarden/Pixel-Puzzle/issues"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pixel_puzzle"]
