@@ -62,6 +62,13 @@ def index():
         status_code=404
     )
 
+@app.get("/favicon.ico", include_in_schema=False)
+def favicon():
+    favicon_path = os.path.join(BASE_DIR, "static", "favicon.svg")
+    if os.path.exists(favicon_path):
+        return FileResponse(favicon_path, media_type="image/svg+xml")
+    return HTMLResponse(status_code=404)
+
 @app.get("/api/images")
 def api_images():
     images = get_images_list()

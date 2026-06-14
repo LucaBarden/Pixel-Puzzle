@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+    <defs>
+        <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#818cf8" />
+            <stop offset="100%" stop-color="#4f46e5" />
+        </linearGradient>
+    </defs>
+    <!-- Dark background block representing the pixel grid canvas -->
+    <rect x="2" y="2" width="28" height="28" rx="6" fill="#18181b" stroke="#3f3f46" stroke-width="1.5" />
+    <!-- Pixel art blocks with indigo gradient and a puzzle/quiz key pixel in rose -->
+    <rect x="6" y="6" width="9" height="9" rx="2" fill="url(#grad)" />
+    <rect x="17" y="6" width="9" height="9" rx="2" fill="#6366f1" opacity="0.8" />
+    <rect x="6" y="17" width="9" height="9" rx="2" fill="#4f46e5" opacity="0.9" />
+    <rect x="17" y="17" width="9" height="9" rx="2" fill="#f43f5e" />
+</svg>
