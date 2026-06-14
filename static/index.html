@@ -5,11 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pixel Quiz</title>
     <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
-    <!-- Premium Google Fonts: Outfit & Space Grotesk -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/fonts.css?v=0.2.0">
+    <link rel="stylesheet" href="/static/style.css?v=0.2.0">
 </head>
 <body>
 
@@ -19,10 +16,12 @@
         <div id="welcome-screen" class="glass-card">
             <h1 class="title">Pixel Quiz</h1>
             <p class="subtitle">Erstelle deine eigene Quiz-Runde! Lade Bilder für deine Session hoch.</p>
+
+            <div id="welcome-error" class="error-banner hidden" role="alert"></div>
             
             <!-- Drag & Drop Zone -->
-            <div id="drop-zone" class="drop-zone">
-                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div id="drop-zone" class="drop-zone" role="button" tabindex="0" aria-label="Bilder hochladen">
+                <svg class="upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                     <polyline points="17 8 12 3 7 8"></polyline>
                     <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -34,6 +33,7 @@
             <!-- Preview List -->
             <div id="preview-container" class="preview-container hidden">
                 <h3 class="preview-title">Ausgewählte Bilder (<span id="file-count">0</span>)</h3>
+                <p class="preview-hint">Ziehen zum Umsortieren</p>
                 <div id="preview-list" class="preview-list"></div>
             </div>
 
@@ -52,7 +52,12 @@
             <!-- Canvas Container -->
             <div class="canvas-wrapper">
                 <canvas id="canvas" class="canvas"></canvas>
+                <div id="image-loading" class="image-loading hidden" aria-hidden="true">
+                    <div class="spinner"></div>
+                </div>
             </div>
+
+            <div id="game-error" class="error-banner hidden" role="alert"></div>
 
             <!-- Score + Status -->
             <div class="stats-row">
@@ -60,25 +65,33 @@
                     Score: 1000
                 </div>
 
-                <div id="personal-best" class="personal-best-badge hidden">
+                <div id="session-total" class="session-total-badge">
+                    Gesamt: 0
+                </div>
+
+                <div id="progress" class="progress-badge">
+                    —
+                </div>
+
+                <div id="personal-best" class="personal-best-badge hidden" title="">
                     🏆 <span id="pb-value">0</span>
                 </div>
 
-                <div id="status" class="status-badge">
+                <div id="status" class="status-badge" role="status" aria-live="polite">
                     Bereit
                 </div>
             </div>
 
             <!-- Mobile Touch Controls -->
             <div class="touch-controls">
-                <button id="touch-pause-btn" class="touch-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
+                <button id="touch-pause-btn" class="touch-btn" aria-label="Start oder Pause">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M8 5v14l11-7z"/>
                     </svg>
                     Start / Pause
                 </button>
-                <button id="touch-next-btn" class="touch-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor">
+                <button id="touch-next-btn" class="touch-btn" aria-label="Nächstes Bild">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                         <path d="M6 18l8.5-6L6 6v12zm2-8.14L11.03 12 8 14.14V9.86zM16 6h2v12h-2z"/>
                     </svg>
                     Nächstes Bild
@@ -97,9 +110,18 @@
 
         </div>
 
+        <!-- Winning Screen -->
+        <div id="win-screen" class="glass-card hidden" role="dialog" aria-labelledby="win-title" aria-modal="true">
+            <h1 id="win-title" class="title">Geschafft!</h1>
+            <p class="win-subtitle">Du hast alle Bilder gespielt.</p>
+            <div id="final-score" class="final-score-badge">0</div>
+            <p id="pb-comparison" class="win-pb-text hidden">Neuer Rekord!</p>
+            <button id="win-new-game-btn" class="btn btn-primary">Neues Spiel</button>
+        </div>
+
     </div>
 
-    <script src="/static/app.js"></script>
+    <script type="module" src="/static/app.js?v=0.2.0"></script>
 
 </body>
 </html>
