@@ -1,78 +1,76 @@
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
+import logging
 import os
+from fastapi import FastAPI
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
+from dotenv import load_dotenv
 
-app = FastAPI()
+# Load env variables from .env file if present
+load_dotenv()
 
-IMAGE_FOLDER = "images"
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+)
+logger = logging.getLogger("pixel_puzzle")
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-app.mount("/images", StaticFiles(directory=IMAGE_FOLDER), name="images")
+app = FastAPI(title="Pixel Puzzle")
 
+# Resolve absolute path for robustness
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-def get_images():
-    files = sorted(os.listdir(IMAGE_FOLDER))
-    return [
-        f"/images/{f}" for f in files if f.lower().endswith((".png", ".jpg", ".jpeg"))
-    ]
+# Configure image folder with env variable support
+IMAGE_FOLDER = os.getenv("IMAGE_FOLDER", os.path.join(BASE_DIR, "images"))
 
+# Automatically ensure image folder exists
+if not os.path.exists(IMAGE_FOLDER):
+    try:
+        os.makedirs(IMAGE_FOLDER, exist_ok=True)
+        logger.info(f"Created missing image directory at: {IMAGE_FOLDER}")
+    except Exception as e:
+        logger.error(f"Could not create image directory {IMAGE_FOLDER}: {e}")
+
+# Mount static files and images
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
+
+if os.path.exists(IMAGE_FOLDER):
+    app.mount("/images", StaticFiles(directory=IMAGE_FOLDER), name="images")
+else:
+    logger.warning(f"Image folder {IMAGE_FOLDER} does not exist. /images path will not be mounted properly.")
+
+def get_images_list():
+    if not os.path.exists(IMAGE_FOLDER):
+        logger.warning(f"Image folder {IMAGE_FOLDER} does not exist.")
+        return []
+    try:
+        files = sorted(os.listdir(IMAGE_FOLDER))
+        return [
+            f"/images/{f}" for f in files if f.lower().endswith((".png", ".jpg", ".jpeg"))
+        ]
+    except Exception as e:
+        logger.error(f"Error reading image folder {IMAGE_FOLDER}: {e}")
+        return []
 
 @app.get("/", response_class=HTMLResponse)
 def index():
-    images = get_images()
+    index_path = os.path.join(BASE_DIR, "static", "index.html")
+    if os.path.exists(index_path):
+        return FileResponse(index_path)
+    return HTMLResponse(
+        "<html><body><h1>Pixel Puzzle</h1><p>Frontend template not found. Please ensure static/index.html exists.</p></body></html>", 
+        status_code=404
+    )
 
-    return f"""
-<!DOCTYPE html>
-<html lang="de">
-<head>
-    <meta charset="UTF-8">
-    <title>Pixel Quiz</title>
+@app.get("/api/images")
+def api_images():
+    images = get_images_list()
+    return JSONResponse(content={"images": images})
 
-    <!-- Tailwind CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
+if __name__ == "__main__":
+    import uvicorn
+    host = os.getenv("HOST", "0.0.0.0")
+    port = int(os.getenv("PORT", "8000"))
+    logger.info(f"Starting server on {host}:{port}")
+    uvicorn.run("main:app", host=host, port=port, reload=False)
 
-<body class="bg-zinc-900 text-white flex items-center justify-center min-h-screen">
-
-    <div class="flex justify-center w-full px-6">
-    
-        <div id="card" class="bg-zinc-800 rounded-2xl shadow-2xl p-6 text-center inline-block">
-
-            <h1 class="text-3xl font-bold mb-4">Pixel Quiz</h1>
-
-            <!-- Canvas -->
-            <div class="flex justify-center">
-                <canvas id="canvas" class="rounded-lg border border-zinc-700"></canvas>
-            </div>
-
-            <!-- Score + Status -->
-            <div class="mt-4 flex justify-between items-center">
-                <div id="score" class="text-xl font-semibold">
-                    Score: 1000
-                </div>
-
-                <div id="status" class="text-sm text-zinc-400">
-                    Bereit
-                </div>
-            </div>
-
-            <!-- Controls -->
-            <div class="mt-4 text-sm text-zinc-400">
-                <span class="px-2 py-1 bg-zinc-700 rounded">SPACE</span> Start / Pause
-                <span class="mx-2">|</span>
-                <span class="px-2 py-1 bg-zinc-700 rounded">N</span> Nächstes Bild
-            </div>
-
-        </div>
-
-    </div>
-
-    <script>
-        const IMAGES = {images};
-    </script>
-    <script src="/static/app.js"></script>
-
-</body>
-</html>
-"""
